@@ -4,6 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+
+	"github.com/munnaMia/nidaa/rest/middleware"
 )
 
 // Start the server
@@ -11,12 +13,18 @@ func Start() {
 	mux := http.NewServeMux()
 
 	// prepare the middleware & manager
-	// register the middleware and manager
-	// register routes
-	// run the server
+	mdlw := middleware.NewMiddleware()
+	mdlwMngr := middleware.NewManager()
+
+	// register global middlewares
+	mdlwMngr.GlobalMiddleware(
+		mdlw.Logger,
+	)
+
+	// register routes...?
 
 	server := http.Server{
-		Handler: mux,
+		Handler: mdlwMngr.Wrap(mux),
 		Addr:    "8080",
 	}
 
