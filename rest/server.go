@@ -5,11 +5,29 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/munnaMia/nidaa/internal/config"
+	"github.com/munnaMia/nidaa/rest/handler/user"
 	"github.com/munnaMia/nidaa/rest/middleware"
 )
 
+type Server struct {
+	config      *config.Configuration
+	userHanlder *user.Handler
+}
+
+// create a new rest server
+func NewServer(
+	cnf *config.Configuration,
+	usrHndlr *user.Handler,
+) *Server {
+	return &Server{
+		config:      cnf,
+		userHanlder: usrHndlr,
+	}
+}
+
 // Start the server
-func Start() {
+func (svr *Server) Start() {
 	mux := http.NewServeMux()
 
 	// prepare the middleware & manager
