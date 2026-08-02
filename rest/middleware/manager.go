@@ -22,7 +22,7 @@ func (mngr *Manager) GlobalMiddleware(middlewares ...mdlw) {
 
 // It will wrap all the given local middlewares into a http handler,
 // and it will follow the FIFO principle to wraps the middlewares
-func (mngr *Manager) With(h http.Handler, localMiddlewares []mdlw) http.Handler {
+func (mngr *Manager) With(h http.Handler, localMiddlewares ...mdlw) http.Handler {
 	handler := h
 
 	for idx := len(localMiddlewares) - 1; idx >= 0; idx-- {
