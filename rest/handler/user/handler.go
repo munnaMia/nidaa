@@ -1,13 +1,20 @@
 package user
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/munnaMia/nidaa/internal/usecase"
+)
 
 type Handler struct {
+	uc *usecase.UserUseCase
 }
 
 // create a user handler
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(uc *usecase.UserUseCase) *Handler {
+	return &Handler{
+		uc: uc,
+	}
 }
 
 // Registers a new user account
