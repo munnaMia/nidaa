@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/munnaMia/nidaa/cmd"
+)
 
 func main() {
-	fmt.Println("welcome to nidda a simple social site")
+	cmd.Run()
 }
