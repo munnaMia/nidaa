@@ -1,8 +1,13 @@
 package postgres
 
 import (
+	"context"
 	"database/sql"
+	"errors"
+	"fmt"
+	"strings"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/munnaMia/nidaa/internal/domain"
 )
 
@@ -15,4 +20,31 @@ func NewUserRepository(db *sql.DB) domain.UserRepository {
 	return &userRepository{
 		db: db,
 	}
+}
+
+func (r *userRepository) Create(ctx context.Context, u *domain.User) error {
+	query := `
+		INSERT INTO users(name, username, email, password_hash, created_at)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING id
+	`
+
+	err := r.db.QueryRowContext(ctx, query, u.Name, u.UserName, u.Email, u.Password, u.CreatedAt).Scan(&u.ID)
+	if err != nil {
+		var pgErr *pgconn.PgError
+
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			switch {
+			case strings.Contains(pgErr.ConstraintName, "username"), strings.Contains(pgErr.Detail, "username"):
+				return domain.ErrUsernameAlreadyExist
+			case strings.Contains(pgErr.ConstraintName, "email"), strings.Contains(pgErr.Detail, "email"):
+				return domain.ErrEmailAlreadyExist
+			default:
+				return domain.ErrEmailAlreadyExist
+			}
+		}
+		return fmt.Errorf("userRepository err: %w", err)
+	}
+
+	return nil
 }
