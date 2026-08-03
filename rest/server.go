@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/munnaMia/nidaa/internal/config"
 	"github.com/munnaMia/nidaa/rest/handler/user"
@@ -39,11 +40,16 @@ func (svr *Server) Start() {
 		mdlw.Logger,
 	)
 
-	// register routes...?
+	// register all the routes
+	svr.userHanlder.RegisterRoute(mux, mdlwMngr)
+
+	// server configuration prepare
+	addr := strconv.Itoa(svr.config.Service.HttpPort)
+	wrapedMux := mdlwMngr.Wrap(mux)
 
 	server := http.Server{
-		Handler: mdlwMngr.Wrap(mux),
-		Addr:    "8080",
+		Handler: wrapedMux,
+		Addr:    addr,
 	}
 
 	// initializing the go server
