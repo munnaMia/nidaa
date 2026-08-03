@@ -1,5 +1,27 @@
 package domain
 
-type User struct{}
+import (
+	"context"
+	"errors"
+	"time"
+)
 
-type UserRepository interface{}
+var (
+	ErrUserNotFound         = errors.New("user not found")
+	ErrEmailAlreadyExist    = errors.New("email already register")
+	ErrUsernameAlreadyExist = errors.New("username already taken")
+)
+
+type User struct {
+	ID        int       `json:"id"`
+	Name      string    `json:"name"`
+	UserName  string    `json:"userName"`
+	Email     string    `json:"email"`
+	Password  string    `json:"-"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type UserRepository interface {
+	Create(ctx context.Context, u *User) error
+}
