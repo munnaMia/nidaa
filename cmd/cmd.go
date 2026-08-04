@@ -10,6 +10,7 @@ import (
 	"github.com/munnaMia/nidaa/rest"
 	"github.com/munnaMia/nidaa/rest/handler/user"
 	"github.com/munnaMia/nidaa/util/logger"
+	"github.com/munnaMia/nidaa/util/responder"
 )
 
 // Start the nidaa application
@@ -22,6 +23,9 @@ func Run() {
 
 	// geting configuration from the env
 	cnf := config.GetConfig()
+
+	// initializing a http responder
+	httpResponder := responder.NewHttpResponder()
 
 	// initializing db connection
 	pool, err := postgres.NewConnection(ctx, cnf)
@@ -38,7 +42,7 @@ func Run() {
 	userUsecase := usecase.NewUserUseCase(userRepo)
 
 	// creating handlers
-	userHandler := user.NewHandler(userUsecase)
+	userHandler := user.NewHandler(userUsecase, httpResponder)
 
 	// create a new rest server
 	svr := rest.NewServer(
