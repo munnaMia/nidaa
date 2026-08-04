@@ -32,6 +32,6 @@ func (uc *UserUseCase) RegisterUser(ctx context.Context, username, name, email, 
 	}
 
 	//return tokenjwt, user, err
-	return "", nil, err
+	return "", user, err
 
 }
