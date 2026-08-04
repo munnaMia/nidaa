@@ -14,6 +14,7 @@ func NewHttpResponder() Responder {
 	return &httpResponder{}
 }
 
+// data any type receive a ponter type keep in mind
 func (htres *httpResponder) SendResponse(w http.ResponseWriter, code int, data any, meta *Meta) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -21,7 +22,7 @@ func (htres *httpResponder) SendResponse(w http.ResponseWriter, code int, data a
 	var buf bytes.Buffer
 
 	if err := json.NewEncoder(&buf).Encode(jsonEnvelop{
-		Data: data,
+		Data: &data,
 		Meta: meta,
 	}); err != nil {
 		slog.Error("Could not sending JSON response", "Err", err)
