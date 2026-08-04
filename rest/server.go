@@ -44,7 +44,7 @@ func (svr *Server) Start() {
 	svr.userHanlder.RegisterRoute(mux, mdlwMngr)
 
 	// server configuration prepare
-	addr := strconv.Itoa(svr.config.Service.HttpPort)
+	addr := ":" + strconv.Itoa(svr.config.Service.HttpPort)
 	wrapedMux := mdlwMngr.Wrap(mux)
 
 	server := http.Server{
@@ -53,7 +53,7 @@ func (svr *Server) Start() {
 	}
 
 	// initializing the go server
-	slog.Info("Starting the server", "PORT", "8080")
+	slog.Info("Starting the server", "PORT", addr)
 	if err := server.ListenAndServe(); err != nil {
 		slog.Error("server failed to start", "error", err)
 		os.Exit(1)
