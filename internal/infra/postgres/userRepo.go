@@ -34,10 +34,13 @@ func (r *userRepository) Create(ctx context.Context, u *domain.User) error {
 		var pgErr *pgconn.PgError
 
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			details := strings.ToLower(pgErr.Detail)
+			constraint := strings.ToLower(pgErr.ConstraintName)
+			
 			switch {
-			case strings.Contains(pgErr.ConstraintName, "username"), strings.Contains(pgErr.Detail, "username"):
+			case strings.Contains(constraint, "username"), strings.Contains(details, "username"):
 				return domain.ErrUsernameAlreadyExist
-			case strings.Contains(pgErr.ConstraintName, "email"), strings.Contains(pgErr.Detail, "email"):
+			case strings.Contains(constraint, "email"), strings.Contains(details, "email"):
 				return domain.ErrEmailAlreadyExist
 			default:
 				return domain.ErrEmailAlreadyExist
