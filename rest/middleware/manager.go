@@ -2,27 +2,27 @@ package middleware
 
 import "net/http"
 
-type mdlw func(http.Handler) http.Handler
+type middleware func(http.Handler) http.Handler
 
 type Manager struct {
-	globalMiddlewares []mdlw
+	globalMiddlewares []middleware
 }
 
 // create a new middleware manager
 func NewManager() *Manager {
 	return &Manager{
-		globalMiddlewares: make([]mdlw, 0),
+		globalMiddlewares: make([]middleware, 0),
 	}
 }
 
 // It register all the global middleware in an array.
-func (mngr *Manager) GlobalMiddleware(middlewares ...mdlw) {
+func (mngr *Manager) GlobalMiddleware(middlewares ...middleware) {
 	mngr.globalMiddlewares = append(mngr.globalMiddlewares, middlewares...)
 }
 
 // It will wrap all the given local middlewares into a http handler,
 // and it will follow the FIFO principle to wraps the middlewares
-func (mngr *Manager) With(h http.Handler, localMiddlewares ...mdlw) http.Handler {
+func (mngr *Manager) With(h http.Handler, localMiddlewares ...middleware) http.Handler {
 	handler := h
 
 	for idx := len(localMiddlewares) - 1; idx >= 0; idx-- {
