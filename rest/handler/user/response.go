@@ -1,6 +1,6 @@
 package user
 
-type registerResponse struct {
+type authResponse struct {
 	Token string       `json:"token"`
 	User  *userResponse `json:"user"`
 }

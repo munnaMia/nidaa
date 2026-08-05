@@ -1,28 +1,31 @@
 package user
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 
 	"github.com/munnaMia/nidaa/internal/domain"
 	"github.com/munnaMia/nidaa/internal/usecase"
+	jsonhelper "github.com/munnaMia/nidaa/util/jsonHelper"
 	"github.com/munnaMia/nidaa/util/responder"
 )
 
 type Handler struct {
 	uc        *usecase.UserUseCase
 	responder responder.Responder
+	jshlp     *jsonhelper.JSONHelper
 }
 
 // create a user handler
 func NewHandler(
 	uc *usecase.UserUseCase,
 	res responder.Responder,
+	jshlp *jsonhelper.JSONHelper,
 ) *Handler {
 	return &Handler{
 		uc:        uc,
 		responder: res,
+		jshlp:     jshlp,
 	}
 }
 
@@ -33,10 +36,8 @@ func (h *Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 
 	var req registerRequest
 
-	decoder := json.NewDecoder(r.Body)
-	decoder.DisallowUnknownFields()
+	err := h.jshlp.Decoder(r.Body, &req)
 
-	err := decoder.Decode(&req)
 	if err != nil {
 		h.responder.SendError(w, http.StatusBadRequest, "Invalid JSON payload")
 		return
@@ -58,7 +59,7 @@ func (h *Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Construct a response
-	regRes := &registerResponse{
+	regRes := &authResponse{
 		Token: token,
 		User: &userResponse{
 			Name:     user.Name,
@@ -72,7 +73,11 @@ func (h *Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // Authenticates user; returns JWT access/refresh tokens
-func (h *Handler) loginUser(w http.ResponseWriter, r *http.Request) {}
+func (h *Handler) loginUser(w http.ResponseWriter, r *http.Request) {
+	// r.Body = http.MaxBytesReader(w, r.Body, 1024*1024)
+	// var req loginRequest
+
+}
 
 // Clears cookies/tokens and invalidates current session
 func (h *Handler) logoutUser(w http.ResponseWriter, r *http.Request) {}
