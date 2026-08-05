@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/munnaMia/nidaa/internal/config"
+	"github.com/munnaMia/nidaa/internal/infra/auth"
 	"github.com/munnaMia/nidaa/internal/infra/postgres"
 	"github.com/munnaMia/nidaa/internal/usecase"
 	"github.com/munnaMia/nidaa/rest"
@@ -26,6 +27,7 @@ func Run() {
 
 	// initializing a http responder
 	httpResponder := responder.NewHttpResponder()
+	jwtService := auth.NewJWTService(cnf.Service.SecretKey)
 
 	// initializing db connection
 	pool, err := postgres.NewConnection(ctx, cnf)
@@ -39,7 +41,7 @@ func Run() {
 	userRepo := postgres.NewUserRepository(pool)
 
 	// initialized usecases
-	userUsecase := usecase.NewUserUseCase(userRepo)
+	userUsecase := usecase.NewUserUseCase(userRepo, jwtService)
 
 	// creating handlers
 	userHandler := user.NewHandler(userUsecase, httpResponder)

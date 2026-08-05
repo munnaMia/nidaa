@@ -44,9 +44,7 @@ func (h *Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 
 	token, user, err := h.uc.RegisterUser(r.Context(), req.UserName, req.Name, req.Email, req.Password)
 	if err != nil {
-		if errors.Is(err, domain.ErrEmailAlreadyExist) {
-			h.responder.SendError(w, http.StatusConflict, err.Error())
-		} else if errors.Is(err, domain.ErrUsernameAlreadyExist) {
+		if errors.Is(err, domain.ErrEmailAlreadyExist) || errors.Is(err, domain.ErrUsernameAlreadyExist) {
 			h.responder.SendError(w, http.StatusConflict, err.Error())
 		} else {
 			h.responder.SendError(w, http.StatusInternalServerError, "Internal server error")

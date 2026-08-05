@@ -14,9 +14,10 @@ type Configuration struct {
 }
 
 type Service struct {
-	Name     string
-	Version  string
-	HttpPort int
+	Name      string
+	Version   string
+	HttpPort  int
+	SecretKey string
 }
 
 type DB struct {
@@ -60,6 +61,12 @@ func loadConfig(path ...string) {
 		os.Exit(1)
 	}
 
+	scrkey := os.Getenv("SECRET_KEY")
+	if scrkey == "" {
+		slog.Error("secret key string not found")
+		os.Exit(1)
+	}
+
 	// fetching db configurations
 	dbHost := os.Getenv("DB_HOST")
 	if svrName == "" {
@@ -99,9 +106,10 @@ func loadConfig(path ...string) {
 
 	configs = &Configuration{
 		Service: &Service{
-			Name:     svrName,
-			Version:  version,
-			HttpPort: int(httpPort),
+			Name:      svrName,
+			Version:   version,
+			HttpPort:  int(httpPort),
+			SecretKey: scrkey,
 		},
 		Database: &DB{
 			DB_Host:     dbHost,
