@@ -31,9 +31,6 @@ func NewHandler(
 
 // Registers a new user account
 func (h *Handler) registerUser(w http.ResponseWriter, r *http.Request) {
-	// 1. Limit request body size (e.g., 1MB) to prevent DoS attacks
-	r.Body = http.MaxBytesReader(w, r.Body, 1024*1024)
-
 	var req registerRequest
 
 	err := h.jshlp.Decoder(r.Body, &req)
@@ -74,9 +71,13 @@ func (h *Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 
 // Authenticates user; returns JWT access/refresh tokens
 func (h *Handler) loginUser(w http.ResponseWriter, r *http.Request) {
-	// r.Body = http.MaxBytesReader(w, r.Body, 1024*1024)
-	// var req loginRequest
+	var req loginRequest
 
+	_ = h.jshlp.Decoder(r.Body, &req)
+
+	// create usecase for login
+	// create repo methods
+	// change on domain
 }
 
 // Clears cookies/tokens and invalidates current session
