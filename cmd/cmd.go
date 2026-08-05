@@ -5,11 +5,14 @@ import (
 	"log/slog"
 
 	"github.com/munnaMia/nidaa/internal/config"
+	"github.com/munnaMia/nidaa/internal/infra/auth"
 	"github.com/munnaMia/nidaa/internal/infra/postgres"
 	"github.com/munnaMia/nidaa/internal/usecase"
 	"github.com/munnaMia/nidaa/rest"
 	"github.com/munnaMia/nidaa/rest/handler/user"
+	jsonhelper "github.com/munnaMia/nidaa/util/jsonHelper"
 	"github.com/munnaMia/nidaa/util/logger"
+	"github.com/munnaMia/nidaa/util/responder"
 )
 
 // Start the nidaa application
@@ -23,6 +26,11 @@ func Run() {
 	// geting configuration from the env
 	cnf := config.GetConfig()
 
+	// initializing a http responder
+	httpResponder := responder.NewHttpResponder()
+	jwtService := auth.NewJWTService(cnf.Service.SecretKey)
+	jsonHelper := jsonhelper.NewJsonHelper()
+
 	// initializing db connection
 	pool, err := postgres.NewConnection(ctx, cnf)
 	if err != nil {
@@ -35,10 +43,10 @@ func Run() {
 	userRepo := postgres.NewUserRepository(pool)
 
 	// initialized usecases
-	userUsecase := usecase.NewUserUseCase(userRepo)
+	userUsecase := usecase.NewUserUseCase(userRepo, jwtService)
 
 	// creating handlers
-	userHandler := user.NewHandler(userUsecase)
+	userHandler := user.NewHandler(userUsecase, httpResponder, jsonHelper)
 
 	// create a new rest server
 	svr := rest.NewServer(
