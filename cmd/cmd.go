@@ -10,6 +10,7 @@ import (
 	"github.com/munnaMia/nidaa/internal/usecase"
 	"github.com/munnaMia/nidaa/rest"
 	"github.com/munnaMia/nidaa/rest/handler/user"
+	jsonhelper "github.com/munnaMia/nidaa/util/jsonHelper"
 	"github.com/munnaMia/nidaa/util/logger"
 	"github.com/munnaMia/nidaa/util/responder"
 )
@@ -28,6 +29,7 @@ func Run() {
 	// initializing a http responder
 	httpResponder := responder.NewHttpResponder()
 	jwtService := auth.NewJWTService(cnf.Service.SecretKey)
+	jsonHelper := jsonhelper.NewJsonHelper()
 
 	// initializing db connection
 	pool, err := postgres.NewConnection(ctx, cnf)
@@ -44,7 +46,7 @@ func Run() {
 	userUsecase := usecase.NewUserUseCase(userRepo, jwtService)
 
 	// creating handlers
-	userHandler := user.NewHandler(userUsecase, httpResponder)
+	userHandler := user.NewHandler(userUsecase, httpResponder, jsonHelper)
 
 	// create a new rest server
 	svr := rest.NewServer(
