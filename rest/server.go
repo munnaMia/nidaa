@@ -31,12 +31,16 @@ func NewServer(
 func (svr *Server) Start() {
 	mux := http.NewServeMux()
 
-	// prepare the middleware & manager
+	// prepare the middleware
 	mdlw := middleware.NewMiddleware()
+	mdlw.MaxBytesReader = 1024 * 1024 // set max r.body limit size.
+
+	// prepare the manager
 	mdlwMngr := middleware.NewManager()
 
 	// register global middlewares
 	mdlwMngr.GlobalMiddleware(
+		mdlw.LimitBodySize,
 		mdlw.Logger,
 	)
 
