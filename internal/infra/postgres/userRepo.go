@@ -36,7 +36,7 @@ func (r *userRepository) Create(ctx context.Context, u *domain.User) error {
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			details := strings.ToLower(pgErr.Detail)
 			constraint := strings.ToLower(pgErr.ConstraintName)
-			
+
 			switch {
 			case strings.Contains(constraint, "username"), strings.Contains(details, "username"):
 				return domain.ErrUsernameAlreadyExist
@@ -50,4 +50,32 @@ func (r *userRepository) Create(ctx context.Context, u *domain.User) error {
 	}
 
 	return nil
+}
+
+func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
+	query := `
+		SELECT  id, name, username, email, password_hash, created_at, updated_at 
+		FROM users
+		WHERE email = $1
+	`
+
+	var user domain.User
+
+	err := r.db.QueryRowContext(ctx, query, email).Scan(
+		&user.ID,
+		&user.Name,
+		&user.UserName,
+		&user.Email,
+		&user.Password,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, domain.ErrInvalidCredentials
+		}
+		return nil, fmt.Errorf("failed to fetch user by email: %w", err)
+	}
+
+	return &user, nil
 }
