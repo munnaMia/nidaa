@@ -34,11 +34,13 @@ func (h *Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 	var req registerRequest
 
 	err := h.jshlp.Decoder(r.Body, &req)
-
 	if err != nil {
 		h.responder.SendError(w, http.StatusBadRequest, "Invalid JSON payload")
 		return
 	}
+
+	// validate user give inputs create a library for that ....
+	// ---------------------------------------------------------
 
 	token, user, err := h.uc.RegisterUser(r.Context(), req.UserName, req.Name, req.Email, req.Password)
 	if err != nil {
@@ -73,11 +75,35 @@ func (h *Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) loginUser(w http.ResponseWriter, r *http.Request) {
 	var req loginRequest
 
-	_ = h.jshlp.Decoder(r.Body, &req)
+	err := h.jshlp.Decoder(r.Body, &req)
+	if err != nil {
+		h.responder.SendError(w, http.StatusBadRequest, "Invalid JSON payload")
+		return
+	}
 
-	// create usecase for login
-	// create repo methods
-	// change on domain
+	// validate user give inputs create a library for that ....
+	// ---------------------------------------------------------
+
+	jwt, user, err := h.uc.LoginUser(r.Context(), req.Email, req.Password)
+	if err != nil {
+		if errors.Is(err, domain.ErrInvalidCredentials) {
+			h.responder.SendError(w, http.StatusBadRequest, err.Error())
+		} else {
+			h.responder.SendError(w, http.StatusInternalServerError, "Internal server error")
+		}
+		return
+	}
+
+	logRes := &authResponse{
+		Token: jwt,
+		User: &userResponse{
+			UserName: user.UserName,
+			Name:     user.Name,
+			Email:    user.Email,
+		},
+	}
+
+	h.responder.SendResponse(w, http.StatusOK, logRes, nil)
 }
 
 // Clears cookies/tokens and invalidates current session

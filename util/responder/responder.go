@@ -27,6 +27,6 @@ type errorEnvelop struct {
 }
 
 type Responder interface {
-	SendResponse(w http.ResponseWriter, code int, data any, meta *Meta)
+	SendResponse(w http.ResponseWriter, code int, data any, meta *Meta) // data any type receive a ponter type keep in mind
 	SendError(w http.ResponseWriter, code int, msg string, details ...ValidationErr)
 }

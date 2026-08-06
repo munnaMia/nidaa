@@ -51,5 +51,30 @@ func (uc *UserUseCase) RegisterUser(ctx context.Context, username, name, email, 
 
 	//return tokenjwt, user, err
 	return jwt, user, err
+}
 
+func (uc *UserUseCase) LoginUser(ctx context.Context, email, password string) (string, *domain.User, error) {
+	user, err := uc.repo.GetByEmail(ctx, email)
+	if err != nil {
+		return "", nil, err
+	}
+
+	// compare user give password with my database hash
+	password_hash := password // create a password hash to compare
+	if password_hash != user.Password {
+		return "", nil, domain.ErrInvalidCredentials
+	}
+
+	jwt, err := uc.tokenService.GenerateToken(domain.Payload{
+		Sub:   strconv.Itoa(user.ID),
+		Name:  user.Name,
+		Email: user.Email,
+		IAT:   time.Now().Unix(),
+		EXP:   time.Now().Add(time.Hour * 24).Unix(),
+	})
+	if err != nil {
+		return "", nil, err
+	}
+
+	return jwt, user, nil
 }
