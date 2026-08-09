@@ -77,16 +77,16 @@ func (v *Validate) Password(p string, pRule PasswordRules) []responder.Validatio
 	}
 
 	if pRule.RequireLower && !hasLower {
-		issues = append(issues, responder.ValidationErr{Field: "password", Issue: fmt.Sprintf("must contain at least one lowercase letter")})
+		issues = append(issues, responder.ValidationErr{Field: "password", Issue: "must contain at least one lowercase letter"})
 	}
 	if pRule.RequireUpper && !hasUpper {
-		issues = append(issues, responder.ValidationErr{Field: "password", Issue: fmt.Sprintf("must contain at least one uppercase letter")})
+		issues = append(issues, responder.ValidationErr{Field: "password", Issue: "must contain at least one uppercase letter"})
 	}
 	if pRule.RequireNumber && !hasNumber {
-		issues = append(issues, responder.ValidationErr{Field: "password", Issue: fmt.Sprintf("must contain at least one number letter")})
+		issues = append(issues, responder.ValidationErr{Field: "password", Issue: "must contain at least one number letter"})
 	}
 	if pRule.RequireSpecial && !hasSpecial {
-		issues = append(issues, responder.ValidationErr{Field: "password", Issue: fmt.Sprintf("must contain at least one special letter")})
+		issues = append(issues, responder.ValidationErr{Field: "password", Issue: "must contain at least one special letter"})
 	}
 
 	if len(issues) > 0 {
