@@ -13,6 +13,7 @@ import (
 	jsonhelper "github.com/munnaMia/nidaa/util/jsonHelper"
 	"github.com/munnaMia/nidaa/util/logger"
 	"github.com/munnaMia/nidaa/util/responder"
+	"github.com/munnaMia/nidaa/util/validate"
 )
 
 // Start the nidaa application
@@ -26,10 +27,11 @@ func Run() {
 	// geting configuration from the env
 	cnf := config.GetConfig()
 
-	// initializing a http responder
+	// initializing a sevices
 	httpResponder := responder.NewHttpResponder()
 	jwtService := auth.NewJWTService(cnf.Service.SecretKey)
 	jsonHelper := jsonhelper.NewJsonHelper()
+	validate := validate.NewValidate()
 
 	// initializing db connection
 	pool, err := postgres.NewConnection(ctx, cnf)
@@ -43,10 +45,18 @@ func Run() {
 	userRepo := postgres.NewUserRepository(pool)
 
 	// initialized usecases
-	userUsecase := usecase.NewUserUseCase(userRepo, jwtService)
+	userUsecase := usecase.NewUserUseCase(
+		userRepo,
+		jwtService,
+	)
 
 	// creating handlers
-	userHandler := user.NewHandler(userUsecase, httpResponder, jsonHelper)
+	userHandler := user.NewHandler(
+		userUsecase,
+		httpResponder,
+		jsonHelper,
+		validate,
+	)
 
 	// create a new rest server
 	svr := rest.NewServer(
