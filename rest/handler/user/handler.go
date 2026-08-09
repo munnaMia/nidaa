@@ -33,18 +33,22 @@ func NewHandler(
 	}
 }
 
+
+
 // Registers a new user account
 func (h *Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 	var req registerRequest
 
-	err := h.jshlp.Decoder(r.Body, &req)
-	if err != nil {
+	// decode the req
+	if err := h.jshlp.Decoder(r.Body, &req); err != nil {
 		h.responder.SendError(w, http.StatusBadRequest, "Invalid JSON payload")
 		return
 	}
 
-	// validate user give inputs create a library for that ....
-	// ---------------------------------------------------------
+	// validate req
+	if ok := checkRegisterReq(w, h.validate, h.responder, req); !ok {
+		return
+	}
 
 	token, user, err := h.uc.RegisterUser(r.Context(), req.UserName, req.Name, req.Email, req.Password)
 	if err != nil {
@@ -72,7 +76,6 @@ func (h *Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.responder.SendResponse(w, http.StatusCreated, regRes, nil)
-
 }
 
 // Authenticates user; returns JWT access/refresh tokens
@@ -85,8 +88,10 @@ func (h *Handler) loginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// validate user give inputs create a library for that ....
-	// ---------------------------------------------------------
+	// validate login req
+	if ok := checkLoginReq(w, h.validate, h.responder, req); !ok {
+		return
+	}
 
 	jwt, user, err := h.uc.LoginUser(r.Context(), req.Email, req.Password)
 	if err != nil {
