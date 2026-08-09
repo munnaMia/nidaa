@@ -20,15 +20,15 @@ func NewValidate() Validator {
 	return &Validate{}
 }
 
-func (v *Validate) String(max int, min int, s string) error {
+func (v *Validate) String(max int, min int, field, s string) error {
 	str := strings.TrimSpace(s)
 	length := utf8.RuneCountInString(str)
 
 	if length < min {
-		return fmt.Errorf("must be at least %d characters long", min)
+		return fmt.Errorf("%s must need to be at least %d characters long", field, min)
 	}
 	if length > max && length > 0 {
-		return fmt.Errorf("must be less then %d characters", max)
+		return fmt.Errorf("%s must need to be less then %d characters", field, max)
 	}
 
 	return nil
@@ -43,7 +43,7 @@ func (v *Validate) Email(e string) error {
 
 	// match the regex with given string
 	if ok := emailRegex.MatchString(email); !ok {
-		return fmt.Errorf("invalid email input.")
+		return fmt.Errorf("invalid email format.")
 	}
 
 	return nil

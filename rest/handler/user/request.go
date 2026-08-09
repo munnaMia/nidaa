@@ -31,12 +31,12 @@ var defaultPasswordRule = validate.PasswordRules{
 
 // check register req. if it is a validated req then it return true and if not a valid req then it return http response and return false.
 func checkRegisterReq(w http.ResponseWriter, validate validate.Validator, responder responder.Responder, req registerRequest) bool {
-	if err := validate.String(50, 8, req.UserName); err != nil {
+	if err := validate.String(50, 4, "UserName", req.UserName); err != nil {
 		responder.SendError(w, http.StatusBadRequest, err.Error())
 		return false
 	}
 
-	if err := validate.String(255, 8, req.Name); err != nil {
+	if err := validate.String(255, 8, "Name", req.Name); err != nil {
 		responder.SendError(w, http.StatusBadRequest, err.Error())
 		return false
 	}
