@@ -6,6 +6,8 @@ import (
 	"strings"
 	"unicode"
 	"unicode/utf8"
+
+	"github.com/munnaMia/nidaa/util/responder"
 )
 
 // Pre-compile the regex pattern once at startup for high performance.
@@ -32,31 +34,31 @@ func (v *Validate) String(max int, min int, s string) error {
 	return nil
 }
 
-func (v *Validate) Email(e string) (error, bool) {
+func (v *Validate) Email(e string) error {
 	email := strings.TrimSpace(e)
 
 	if len(email) == 0 || len(email) > 254 {
-		return fmt.Errorf("invalid email length: must be between 1 and 254 characters"), false
+		return fmt.Errorf("invalid email length: must be between 1 and 254 characters")
 	}
 
 	// match the regex with given string
 	if ok := emailRegex.MatchString(email); !ok {
-		return fmt.Errorf("invalid email input."), false
+		return fmt.Errorf("invalid email input.")
 	}
 
-	return nil, true
+	return nil
 }
 
-func (v *Validate) Password(p string, pRule PasswordRules) []error {
-	issues := make([]error, 0)
+func (v *Validate) Password(p string, pRule PasswordRules) []responder.ValidationErr {
+	issues := make([]responder.ValidationErr, 0)
 
 	length := utf8.RuneCountInString(p)
 
 	if length > pRule.MaxLength {
-		issues = append(issues, fmt.Errorf("must be less then %d characters ", pRule.MaxLength))
+		issues = append(issues, responder.ValidationErr{Field: "password", Issue: fmt.Sprintf("must be less then %d characters ", pRule.MaxLength)})
 	}
 	if length < pRule.MinLenght {
-		issues = append(issues, fmt.Errorf("must be more then %d characters ", pRule.MinLenght))
+		issues = append(issues, responder.ValidationErr{Field: "password", Issue: fmt.Sprintf("must be more then %d characters ", pRule.MinLenght)})
 	}
 
 	var hasLower, hasUpper, hasNumber, hasSpecial bool
@@ -75,16 +77,16 @@ func (v *Validate) Password(p string, pRule PasswordRules) []error {
 	}
 
 	if pRule.RequireLower && !hasLower {
-		issues = append(issues,fmt.Errorf( "must contain at least one lowercase letter"))
+		issues = append(issues, responder.ValidationErr{Field: "password", Issue: fmt.Sprintf("must contain at least one lowercase letter")})
 	}
 	if pRule.RequireUpper && !hasUpper {
-		issues = append(issues,fmt.Errorf( "must contain at least one uppercase letter"))
+		issues = append(issues, responder.ValidationErr{Field: "password", Issue: fmt.Sprintf("must contain at least one uppercase letter")})
 	}
 	if pRule.RequireNumber && !hasNumber {
-		issues = append(issues,fmt.Errorf( "must contain at least one number letter"))
+		issues = append(issues, responder.ValidationErr{Field: "password", Issue: fmt.Sprintf("must contain at least one number letter")})
 	}
 	if pRule.RequireSpecial && !hasSpecial {
-		issues = append(issues,fmt.Errorf( "must contain at least one special letter"))
+		issues = append(issues, responder.ValidationErr{Field: "password", Issue: fmt.Sprintf("must contain at least one special letter")})
 	}
 
 	if len(issues) > 0 {
