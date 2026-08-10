@@ -68,7 +68,7 @@ func (h *Handler) loginUser(w http.ResponseWriter, r *http.Request) {
 	jwt, user, err := h.uc.LoginUser(r.Context(), req.Email, req.Password)
 	if err != nil {
 		if errors.Is(err, domain.ErrInvalidCredentials) {
-			h.responder.SendError(w, http.StatusBadRequest, err.Error())
+			h.responder.SendError(w, http.StatusUnauthorized, err.Error())
 		} else {
 			h.responder.SendError(w, http.StatusInternalServerError, "Internal server error")
 		}
