@@ -32,7 +32,7 @@ func (svr *Server) Start() {
 	mux := http.NewServeMux()
 
 	// prepare the middleware
-	mdlw := middleware.NewMiddleware()
+	mdlw := middleware.NewMiddleware(svr.config)
 	mdlw.MaxBytesReader = 1024 * 1024 // set max r.body limit size.
 
 	// prepare the manager
