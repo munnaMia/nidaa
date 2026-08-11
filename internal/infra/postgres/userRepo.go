@@ -79,3 +79,11 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.
 
 	return &user, nil
 }
+
+// func (r *userRepository) GetByID(ctx context.Context, id int) (*domain.User, error) {
+// 	query := `
+// 		SELECT  id, name, username, email, created_at, updated_at 
+// 		FROM users
+// 		WHERE id = $1
+// 	`
+// }
