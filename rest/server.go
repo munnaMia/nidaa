@@ -7,22 +7,26 @@ import (
 	"strconv"
 
 	"github.com/munnaMia/nidaa/internal/config"
+	"github.com/munnaMia/nidaa/internal/domain"
 	"github.com/munnaMia/nidaa/rest/handler/user"
 	"github.com/munnaMia/nidaa/rest/middleware"
 )
 
 type Server struct {
 	config      *config.Configuration
+	tkSvr       domain.TokenService
 	userHanlder *user.Handler
 }
 
 // create a new rest server
 func NewServer(
 	cnf *config.Configuration,
+	tkSvr domain.TokenService,
 	usrHndlr *user.Handler,
 ) *Server {
 	return &Server{
 		config:      cnf,
+		tkSvr:       tkSvr,
 		userHanlder: usrHndlr,
 	}
 }
@@ -32,7 +36,7 @@ func (svr *Server) Start() {
 	mux := http.NewServeMux()
 
 	// prepare the middleware
-	mdlw := middleware.NewMiddleware(svr.config)
+	mdlw := middleware.NewMiddleware(svr.config, svr.tkSvr)
 	mdlw.MaxBytesReader = 1024 * 1024 // set max r.body limit size.
 
 	// prepare the manager

@@ -61,6 +61,7 @@ func Run() {
 	// create a new rest server
 	svr := rest.NewServer(
 		cnf,
+		jwtService,
 		userHandler,
 	)
 
