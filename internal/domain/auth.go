@@ -15,4 +15,5 @@ type Payload struct {
 
 type TokenService interface {
 	GenerateToken(payload Payload) (string, error)
+	ValidateToken(token string) (*Payload, error)
 }
