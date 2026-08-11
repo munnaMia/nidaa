@@ -8,7 +8,7 @@ import (
 
 type contextKey string
 
-const UserPayloadKey contextKey = "userPayload"
+const userPayloadKey contextKey = "userPayload"
 
 // validate a jwt token for authorize users
 func (mdlw *Middleware) AuthenticateJWT(next http.Handler) http.Handler {
@@ -34,7 +34,7 @@ func (mdlw *Middleware) AuthenticateJWT(next http.Handler) http.Handler {
 		}
 
 		// Attach payload to context and proceed
-		ctx := context.WithValue(r.Context(), UserPayloadKey, payload)
+		ctx := context.WithValue(r.Context(), userPayloadKey, payload)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
