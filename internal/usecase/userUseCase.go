@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -86,13 +85,8 @@ func (uc *UserUseCase) LoginUser(ctx context.Context, email, password string) (s
 	return jwt, user, nil
 }
 
-func (uc *UserUseCase) GetUser(ctx context.Context, id string) (*domain.User, error) {
-	userId, err := strconv.ParseInt(id, 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("invalide user id: %w", err)
-	}
-
-	user, err := uc.repo.GetByID(ctx, userId)
+func (uc *UserUseCase) GetUser(ctx context.Context, id int64) (*domain.User, error) {
+	user, err := uc.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
