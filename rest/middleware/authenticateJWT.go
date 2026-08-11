@@ -1,14 +1,11 @@
 package middleware
 
 import (
-	"context"
 	"net/http"
 	"strings"
+
+	reqctx "github.com/munnaMia/nidaa/internal/reqCtx"
 )
-
-type contextKey string
-
-const userPayloadKey contextKey = "userPayload"
 
 // validate a jwt token for authorize users
 func (mdlw *Middleware) AuthenticateJWT(next http.Handler) http.Handler {
@@ -33,8 +30,6 @@ func (mdlw *Middleware) AuthenticateJWT(next http.Handler) http.Handler {
 			return
 		}
 
-		// Attach payload to context and proceed
-		ctx := context.WithValue(r.Context(), userPayloadKey, payload)
-		next.ServeHTTP(w, r.WithContext(ctx))
+		next.ServeHTTP(w, r.WithContext(reqctx.WithUser(r.Context(), payload)))
 	})
 }
