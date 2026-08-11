@@ -26,9 +26,9 @@ func (h *Handler) registerUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Is(err, domain.ErrEmailAlreadyExist) || errors.Is(err, domain.ErrUsernameAlreadyExist) {
 			h.responder.SendError(w, http.StatusConflict, err.Error())
-		} else {
-			h.responder.SendError(w, http.StatusInternalServerError, "Internal server error")
+			return
 		}
+		h.responder.SendError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
 
@@ -69,9 +69,9 @@ func (h *Handler) loginUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Is(err, domain.ErrInvalidCredentials) {
 			h.responder.SendError(w, http.StatusUnauthorized, err.Error())
-		} else {
-			h.responder.SendError(w, http.StatusInternalServerError, "Internal server error")
+			return
 		}
+		h.responder.SendError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
 
