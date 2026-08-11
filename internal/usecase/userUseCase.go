@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/munnaMia/nidaa/internal/domain"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserUseCase struct {
@@ -24,15 +25,20 @@ func NewUserUseCase(
 }
 
 func (uc *UserUseCase) RegisterUser(ctx context.Context, username, name, email, password string) (string, *domain.User, error) {
+	hashedPassBytes, err := bcrypt.GenerateFromPassword([]byte(password), 12)
+	if err != nil {
+		return "", nil, err
+	}
+
 	user := &domain.User{
 		UserName:  username,
 		Name:      name,
 		Email:     email,
-		Password:  password, // hash the pssword latter.
+		Password:  string(hashedPassBytes),
 		CreatedAt: time.Now().UTC(),
 	}
 
-	err := uc.repo.Create(ctx, user)
+	err = uc.repo.Create(ctx, user)
 	if err != nil {
 		return "", nil, err
 	}
@@ -49,8 +55,8 @@ func (uc *UserUseCase) RegisterUser(ctx context.Context, username, name, email, 
 		return "", nil, err
 	}
 
-	//return tokenjwt, user, err
-	return jwt, user, err
+	//return tokenjwt, user
+	return jwt, user, nil
 }
 
 func (uc *UserUseCase) LoginUser(ctx context.Context, email, password string) (string, *domain.User, error) {
@@ -59,9 +65,9 @@ func (uc *UserUseCase) LoginUser(ctx context.Context, email, password string) (s
 		return "", nil, err
 	}
 
-	// compare user give password with my database hash
-	password_hash := password // create a password hash to compare
-	if password_hash != user.Password {
+	// Compare incoming plain password against stored bcrypt hash
+	// bcrypt handles constant-time comparison internally!
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		return "", nil, domain.ErrInvalidCredentials
 	}
 
@@ -77,4 +83,13 @@ func (uc *UserUseCase) LoginUser(ctx context.Context, email, password string) (s
 	}
 
 	return jwt, user, nil
+}
+
+func (uc *UserUseCase) GetUser(ctx context.Context, id int64) (*domain.User, error) {
+	user, err := uc.repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }

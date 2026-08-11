@@ -42,7 +42,7 @@ func (v *Validate) Email(e string) error {
 	}
 
 	// match the regex with given string
-	if ok := emailRegex.MatchString(email); !ok {
+	if !emailRegex.MatchString(email) {
 		return fmt.Errorf("invalid email format.")
 	}
 

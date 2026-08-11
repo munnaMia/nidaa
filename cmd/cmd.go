@@ -53,14 +53,15 @@ func Run() {
 	// creating handlers
 	userHandler := user.NewHandler(
 		userUsecase,
-		httpResponder,
 		jsonHelper,
+		httpResponder,
 		validate,
 	)
 
 	// create a new rest server
 	svr := rest.NewServer(
 		cnf,
+		jwtService,
 		userHandler,
 	)
 
