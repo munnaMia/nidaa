@@ -20,7 +20,7 @@ func (mdlw *Middleware) AuthenticateJWT(next http.Handler) http.Handler {
 		}
 
 		parts := strings.Split(authHeader, " ") // extract the bearer and token
-		if len(parts) != 2 && parts[0] != "Bearer" {
+		if len(parts) != 2 || parts[0] != "Bearer" {
 			http.Error(w, "invalid authorization header format", http.StatusUnauthorized)
 			return
 		}
