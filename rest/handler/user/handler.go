@@ -9,22 +9,22 @@ import (
 
 type Handler struct {
 	uc        *usecase.UserUseCase
-	responder responder.Responder
 	jshlp     *jsonhelper.JSONHelper
+	responder responder.Responder
 	validate  validate.Validator
 }
 
 // create a user handler
 func NewHandler(
 	uc *usecase.UserUseCase,
-	res responder.Responder,
 	jshlp *jsonhelper.JSONHelper,
+	res responder.Responder,
 	valid validate.Validator,
 ) *Handler {
 	return &Handler{
 		uc:        uc,
-		responder: res,
 		jshlp:     jshlp,
+		responder: res,
 		validate:  valid,
 	}
 }

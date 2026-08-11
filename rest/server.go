@@ -40,12 +40,12 @@ func (svr *Server) Start() {
 
 	// register global middlewares
 	mdlwMngr.GlobalMiddleware(
-		mdlw.LimitBodySize,
 		mdlw.Logger,
+		mdlw.LimitBodySize,
 	)
 
 	// register all the routes
-	svr.userHanlder.RegisterRoute(mux, mdlwMngr)
+	svr.userHanlder.RegisterRoute(mux, mdlw, mdlwMngr)
 
 	// server configuration prepare
 	addr := ":" + strconv.Itoa(svr.config.Service.HttpPort)

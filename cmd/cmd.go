@@ -53,8 +53,8 @@ func Run() {
 	// creating handlers
 	userHandler := user.NewHandler(
 		userUsecase,
-		httpResponder,
 		jsonHelper,
+		httpResponder,
 		validate,
 	)
 
