@@ -3,7 +3,10 @@ package auth
 import (
 	"crypto/hmac"
 	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/munnaMia/nidaa/internal/domain"
@@ -64,4 +67,44 @@ func (jwtSvr *JWTService) GenerateToken(pl domain.Payload) (string, error) {
 	jwt := headerB64 + "." + payloadB64 + "." + signatureB64
 
 	return jwt, nil
+}
+
+// validate a jwt token
+func (jwtSvr *JWTService) ValidateToken(token string) (*domain.Payload, error) {
+	tokenArr := strings.Split(token, ".")
+	if len(tokenArr) != 3 {
+		return nil, fmt.Errorf("invalide token format")
+	}
+
+	jwtHeader := tokenArr[0]
+	jwtBody := tokenArr[1]
+	jwtSignature := tokenArr[2]
+
+	massage := jwtHeader + "." + jwtBody
+	h := hmac.New(sha256.New, []byte(jwtSvr.secretKey))
+	h.Write([]byte(massage))
+	newHash := h.Sum(nil)
+	newSignature := conv.B64UrlEncoding(newHash)
+
+	// Securely compare signatures (prevents timing attacks)
+	if subtle.ConstantTimeCompare([]byte(jwtSignature), []byte(newSignature)) != 1 {
+		return nil, fmt.Errorf("invalid token signature")
+	}
+
+	jwtBodyBytes, err := conv.B64UrlDecoding(jwtBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode payload: %w", err)
+	}
+
+	var payload domain.Payload
+	if err := json.Unmarshal(jwtBodyBytes, &payload); err != nil {
+		return nil, fmt.Errorf("failed to parse payload json: %w", err)
+	}
+
+	// Validate expiration timestamp
+	if time.Now().Unix() > payload.EXP {
+		return nil, fmt.Errorf("token has expired")
+	}
+
+	return &payload, nil
 }
