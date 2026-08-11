@@ -59,18 +59,21 @@ func (h *Handler) RegisterRoute(mux *http.ServeMux, mdlw *middleware.Middleware,
 		"GET /api/account/me",
 		mngr.With(
 			http.HandlerFunc(h.getCurrentUser),
+			mdlw.AuthenticateJWT,
 		),
 	)
 	mux.Handle(
 		"PATCH /api/account/me",
 		mngr.With(
 			http.HandlerFunc(h.updateCurrentUser),
+			mdlw.AuthenticateJWT,
 		),
 	)
 	mux.Handle(
 		"DELETE /api/account/me",
 		mngr.With(
 			http.HandlerFunc(h.deleteCurrentUser),
+			mdlw.AuthenticateJWT,
 		),
 	)
 }
