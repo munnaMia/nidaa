@@ -1,13 +1,14 @@
 package middleware
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
+	"context"
 	"net/http"
 	"strings"
-
-	"github.com/munnaMia/nidaa/util/conv"
 )
+
+type contextKey string
+
+const UserPayloadKey contextKey = "userPayload"
 
 // validate a jwt token for authorize users
 func (mdlw *Middleware) AuthenticateJWT(next http.Handler) http.Handler {
@@ -25,30 +26,15 @@ func (mdlw *Middleware) AuthenticateJWT(next http.Handler) http.Handler {
 		}
 
 		accessToken := parts[1]
-		accTokenArr := strings.Split(accessToken, ".")
-		if len(accTokenArr) != 3 {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+
+		payload, err := mdlw.tkSvr.ValidateToken(accessToken)
+		if err != nil {
+			http.Error(w, "invalid or expired token", http.StatusUnauthorized)
 			return
 		}
 
-		jwtHeader := accTokenArr[0]
-		jwtBody := accTokenArr[1]
-		jwtSignature := accTokenArr[2]
-
-		massage := jwtHeader + "." + jwtBody
-		scrBytes := []byte(mdlw.config.Service.SecretKey)
-		msgBytes := []byte(massage)
-
-		h := hmac.New(sha256.New, scrBytes)
-		h.Write(msgBytes)
-		newHash := h.Sum(nil)
-		newSignature := conv.B64UrlEncoding(newHash)
-
-		if jwtSignature != newSignature {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		next.ServeHTTP(w, r)
+		// Attach payload to context and proceed
+		ctx := context.WithValue(r.Context(), UserPayloadKey, payload)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
