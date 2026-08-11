@@ -12,19 +12,19 @@ import (
 // validate a jwt token for authorize users
 func (mdlw *Middleware) AuthenticateJWT(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		header := r.Header.Get("Authorization")
-		if header == "" {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			http.Error(w, "missing authorization header", http.StatusUnauthorized)
 			return
 		}
 
-		headerArray := strings.Split(header, " ") // extract the bearer and token
-		if len(headerArray) != 2 {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		parts := strings.Split(authHeader, " ") // extract the bearer and token
+		if len(parts) != 2 && parts[0] != "Bearer" {
+			http.Error(w, "invalid authorization header format", http.StatusUnauthorized)
 			return
 		}
 
-		accessToken := headerArray[1]
+		accessToken := parts[1]
 		accTokenArr := strings.Split(accessToken, ".")
 		if len(accTokenArr) != 3 {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
